@@ -118,7 +118,7 @@ def build_ssm_graph(document_name, document):
         text_file.write(ssm_graph)
 
 
-def upload_ssm_artifacts(output_path="Output", bucket="ddwa-ssm-automation"):
+def upload_ssm_artifacts(output_path="Output", bucket="ssm-automation"):
     output_artifacts = os.listdir(output_path)
 
     for output in output_artifacts:
