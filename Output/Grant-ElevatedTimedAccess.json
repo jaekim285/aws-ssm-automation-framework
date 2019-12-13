@@ -35,10 +35,10 @@
       "name": "deployElevatedPolicyGeneratorLambda",
       "action": "aws:createStack",
       "inputs": {
-        "StackName": "ddwa-timed-access-policy-{{automation:EXECUTION_ID}}",
+        "StackName": "timed-access-policy-{{automation:EXECUTION_ID}}",
         "Parameters": [
           {
-            "ParameterValue": "ddwa-timed-policy-{{automation:EXECUTION_ID}}",
+            "ParameterValue": "timed-policy-{{automation:EXECUTION_ID}}",
             "ParameterKey": "FunctionName"
           },
           {
@@ -59,10 +59,10 @@
       "name": "deployElevatedTimedAccessLambda",
       "action": "aws:createStack",
       "inputs": {
-        "StackName": "ddwa-timed-access-{{automation:EXECUTION_ID}}",
+        "StackName": "timed-access-{{automation:EXECUTION_ID}}",
         "Parameters": [
           {
-            "ParameterValue": "ddwa-timed-access-{{automation:EXECUTION_ID}}",
+            "ParameterValue": "timed-access-{{automation:EXECUTION_ID}}",
             "ParameterKey": "FunctionName"
           },
           {
@@ -96,7 +96,7 @@
       "action": "aws:invokeLambdaFunction",
       "onFailure": "Abort",
       "inputs": {
-        "FunctionName": "ddwa-timed-access-{{automation:EXECUTION_ID}}",
+        "FunctionName": "timed-access-{{automation:EXECUTION_ID}}",
         "Payload": "{\"IAMUser\": \"{{IAMUser}}\", \"Reason\": \"{{Reason}}\", \"Duration\": \"{{Duration}}\"}",
         "LogType": "Tail"
       },
@@ -108,7 +108,7 @@
       "name": "deleteElevatedTimedAccessLambda",
       "action": "aws:deleteStack",
       "inputs": {
-        "StackName": "ddwa-timed-access-{{automation:EXECUTION_ID}}"
+        "StackName": "timed-access-{{automation:EXECUTION_ID}}"
       },
       "isCritical": false
     },
@@ -116,7 +116,7 @@
       "name": "deleteElevatedPolicyGeneratorLambda",
       "action": "aws:deleteStack",
       "inputs": {
-        "StackName": "ddwa-timed-access-policy-{{automation:EXECUTION_ID}}"
+        "StackName": "timed-access-policy-{{automation:EXECUTION_ID}}"
       },
       "isCritical": false,
       "isEnd": true

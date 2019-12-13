@@ -6,7 +6,7 @@
     "S3Path": {
       "type": "String",
       "description": "(Required) S3 Path of File",
-      "default": "s3://ddwa-prod-binaries/releases/versions/RB_1_4_0/Smile.GatewayServices.Gateway.1.4.0.zip"
+      "default": "s3://binaries"
     },
     "LocalPath": {
       "type": "String",
@@ -108,7 +108,7 @@
             "    (",
             "        [Parameter(Mandatory = $true)]",
             "        [ValidateNotNullOrEmpty()]",
-            "        [String]$Path = 's3://ddwa-prod-binaries/releases/versions/RB_1_4_0/Smile.GatewayServices.Gateway.1.4.0.zip',",
+            "        [String]$Path = 's3://binaries',",
             "",
             "        [Parameter(Mandatory = $false)]",
             "        [ValidateNotNullOrEmpty()]",
