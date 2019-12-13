@@ -1,0 +1,9 @@
+{
+    "build": [
+        {
+            "stepName": "getFileFromS3",
+            "file": "Scripts/Get-FileFromS3.ps1",
+            "type": "Command"
+        }
+    ]
+}

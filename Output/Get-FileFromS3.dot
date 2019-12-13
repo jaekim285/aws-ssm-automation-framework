@@ -1,0 +1,13 @@
+// Retrieve a file from S3.
+digraph {
+    Start [label=Start]
+    End [label=End]
+    Start -> assertInstanceIsWindows
+    assertInstanceIsWindows -> describeManagedInstance [label=onSuccess]
+    assertInstanceIsWindows -> End [label=onFailure color="red"]
+    describeManagedInstance -> branchOnManagedInstancePingStatus [label=onSuccess]
+    describeManagedInstance -> End [label=onFailure color="red"]
+    branchOnManagedInstancePingStatus -> getFileFromS3 [label="\"Variable\": \"{{ describeManagedInstance.PingStatus }}\"\l\"StringEquals\": \"Online\""]
+    branchOnManagedInstancePingStatus -> End [label=onFailure color="red"]
+    getFileFromS3 -> End [label=onSuccess]
+}

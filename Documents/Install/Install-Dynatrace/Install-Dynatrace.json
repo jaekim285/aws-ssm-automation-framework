@@ -1,0 +1,104 @@
+{
+  "description": "Installs Dynatrace using installer from the Binaries bucket.",
+  "schemaVersion": "0.3",
+  "assumeRole": "{{ AutomationAssumeRole }}",
+  "parameters": {
+    "Binaries": {
+      "type": "String",
+      "description": "(Required) S3 bucket containing binaries."
+    },
+    "InstanceId": {
+      "type": "StringList",
+      "description": "(Required) EC2 Instance(s) to start"
+    },
+    "AutomationAssumeRole": {
+      "type": "String",
+      "description": "(Optional) The ARN of the role that allows Automation to perform the actions on your behalf. If no role is specified, Systems Manager Automation uses your IAM permissions to execute this document.",
+      "default": ""
+    }
+  },
+  "mainSteps": [
+    {
+      "name": "assertInstanceIsWindows",
+      "action": "aws:assertAwsResourceProperty",
+      "onFailure": "Abort",
+      "inputs": {
+        "Service": "ec2",
+        "Api": "DescribeInstances",
+        "InstanceIds": [
+          "{{ InstanceId }}"
+        ],
+        "PropertySelector": "$.Reservations[0].Instances[0].Platform",
+        "DesiredValues": [
+          "windows"
+        ]
+      },
+      "isCritical": "true",
+      "nextStep": "describeManagedInstance"
+    },
+    {
+      "name": "describeManagedInstance",
+      "action": "aws:executeAwsApi",
+      "onFailure": "Abort",
+      "inputs": {
+        "Service": "ssm",
+        "Api": "DescribeInstanceInformation",
+        "InstanceInformationFilterList": [
+          {
+            "key": "InstanceIds",
+            "valueSet": [
+              "{{ InstanceId }}"
+            ]
+          }
+        ]
+      },
+      "outputs": [
+        {
+          "Name": "PingStatus",
+          "Selector": "$.InstanceInformationList[0].PingStatus"
+        }
+      ],
+      "isCritical": "true",
+      "nextStep": "branchOnManagedInstancePingStatus"
+    },
+    {
+      "name": "branchOnManagedInstancePingStatus",
+      "action": "aws:branch",
+      "onFailure": "Abort",
+      "inputs": {
+        "Choices": [
+          {
+            "NextStep": "installDynatrace",
+            "Variable": "{{ describeManagedInstance.PingStatus }}",
+            "StringEquals": "Online"
+          }
+        ]
+      },
+      "isCritical": "true",
+      "isEnd": "true"
+    },
+    {
+      "name": "installDynatrace",
+      "action": "aws:runCommand",
+      "onFailure": "Continue",
+      "inputs": {
+        "InstanceIds": [
+          "{{ InstanceId }}"
+        ],
+        "DocumentName": "AWS-RunPowerShellScript",
+        "Parameters": {
+          "commands": [
+              "%WINDOWSSCRIPT%"
+          ]
+        }
+      },
+      "maxAttempts": 1,
+      "timeoutSeconds": 240,
+      "isCritical": true,
+      "isEnd": true
+    }
+  ],
+  "outputs": [
+    "installDynatrace.Output"
+  ]
+}

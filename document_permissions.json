@@ -1,0 +1,20 @@
+{
+    "documents": [
+        {
+            "name": "Install-Qualys",
+            "awsAccounts": [870621179827]
+        },
+        {
+            "name": "Install-Dynatrace",
+            "awsAccounts": [870621179827, 342484782665]
+        },
+        {
+            "name": "Get-FileFromS3",
+            "awsAccounts": [870621179827, 342484782665]
+        },
+        {
+            "name": "Grant-ElevatedTimedAccess",
+            "awsAccounts": [870621179827]
+        }
+    ]
+}

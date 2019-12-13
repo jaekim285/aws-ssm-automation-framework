@@ -1,0 +1,128 @@
+{
+  "description": "Grants Administrator privileges to an IAM user.",
+  "schemaVersion": "0.3",
+  "assumeRole": "arn:aws:iam::{{ global:ACCOUNT_ID }}:role/SSMAutomationRole",
+  "parameters": {
+    "IAMUser": {
+      "type": "String",
+      "description": "(Required) IAM user to grant Administrator privileges.",
+      "default": "8west-",
+      "allowedPattern": "^8west-[a-zA-Z0-9]{3,20}$"
+    },
+    "Reason": {
+      "type": "String",
+      "description": "(Required) Reason for requesting Administrator privileges.",
+      "default": "Administrator privileges required for troubleshooting"
+    },
+    "Duration": {
+      "type": "String",
+      "description": "(Required) Duration (in hours) to grant Administrator privileges.",
+      "default": "4",
+      "allowedValues": [
+        "1",
+        "2",
+        "3",
+        "4",
+        "5",
+        "6",
+        "7",
+        "8"
+      ]
+    }
+  },
+  "mainSteps": [
+    {
+      "name": "deployElevatedPolicyGeneratorLambda",
+      "action": "aws:createStack",
+      "inputs": {
+        "StackName": "timed-access-policy-{{automation:EXECUTION_ID}}",
+        "Parameters": [
+          {
+            "ParameterValue": "timed-policy-{{automation:EXECUTION_ID}}",
+            "ParameterKey": "FunctionName"
+          },
+          {
+            "ParameterValue": "{{ Duration }}",
+            "ParameterKey": "Duration"
+          }
+        ],
+        "Capabilities": [
+          "CAPABILITY_IAM"
+        ],
+        "TemplateBody": "%CFNTEMPLATE%"
+      },
+      "maxAttempts": 1,
+      "onFailure": "Abort",
+      "isCritical": true
+    },
+    {
+      "name": "deployElevatedTimedAccessLambda",
+      "action": "aws:createStack",
+      "inputs": {
+        "StackName": "timed-access-{{automation:EXECUTION_ID}}",
+        "Parameters": [
+          {
+            "ParameterValue": "timed-access-{{automation:EXECUTION_ID}}",
+            "ParameterKey": "FunctionName"
+          },
+          {
+            "ParameterValue": "{{ IAMUser }}",
+            "ParameterKey": "User"
+          },
+          {
+            "ParameterValue": "{{ Reason }}",
+            "ParameterKey": "Reason"
+          },
+          {
+            "ParameterValue": "{{ Duration }}",
+            "ParameterKey": "Duration"
+          },
+          {
+            "ParameterValue": "{{ automation:EXECUTION_ID }}",
+            "ParameterKey": "ExecutionId"
+          }
+        ],
+        "Capabilities": [
+          "CAPABILITY_IAM"
+        ],
+        "TemplateBody": "%CFNTEMPLATE%"
+      },
+      "maxAttempts": 1,
+      "onFailure": "Abort",
+      "isCritical": true
+    },
+    {
+      "name": "invokeElevatedTimedAccessLambda",
+      "action": "aws:invokeLambdaFunction",
+      "onFailure": "Abort",
+      "inputs": {
+        "FunctionName": "timed-access-{{automation:EXECUTION_ID}}",
+        "Payload": "{\"IAMUser\": \"{{IAMUser}}\", \"Reason\": \"{{Reason}}\", \"Duration\": \"{{Duration}}\"}",
+        "LogType": "Tail"
+      },
+      "maxAttempts": 1,
+      "timeoutSeconds": 360,
+      "isCritical": false
+    },
+    {
+      "name": "deleteElevatedTimedAccessLambda",
+      "action": "aws:deleteStack",
+      "inputs": {
+        "StackName": "timed-access-{{automation:EXECUTION_ID}}"
+      },
+      "isCritical": false
+    },
+    {
+      "name": "deleteElevatedPolicyGeneratorLambda",
+      "action": "aws:deleteStack",
+      "inputs": {
+        "StackName": "timed-access-policy-{{automation:EXECUTION_ID}}"
+      },
+      "isCritical": false,
+      "isEnd": true
+    }
+  ],
+  "outputs": [
+    "invokeElevatedTimedAccessLambda.LogResult"
+  ]
+}

@@ -1,0 +1,16 @@
+// Grants Administrator privileges to an IAM user.
+digraph {
+    Start [label=Start]
+    End [label=End]
+    Start -> deployElevatedPolicyGeneratorLambda
+    deployElevatedPolicyGeneratorLambda -> End [label=onFailure color="red"]
+    deployElevatedPolicyGeneratorLambda -> deployElevatedTimedAccessLambda [label=onSuccess]
+    deployElevatedTimedAccessLambda -> End [label=onFailure color="red"]
+    deployElevatedTimedAccessLambda -> invokeElevatedTimedAccessLambda [label=onSuccess]
+    invokeElevatedTimedAccessLambda -> End [label=onFailure color="red"]
+    invokeElevatedTimedAccessLambda -> deleteElevatedTimedAccessLambda [label=onSuccess]
+    deleteElevatedTimedAccessLambda -> End [label=onFailure color="red"]
+    deleteElevatedTimedAccessLambda -> deleteElevatedPolicyGeneratorLambda [label=onSuccess]
+    deleteElevatedPolicyGeneratorLambda -> End [label=onSuccess]
+    deleteElevatedPolicyGeneratorLambda -> End [label=onFailure color="red"]
+}

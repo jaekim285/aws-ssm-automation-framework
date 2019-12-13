@@ -1,0 +1,55 @@
+AWSTemplateFormatVersion: 2010-09-09
+
+Resources:
+  SSMAutomationRole:
+    Type: AWS::IAM::Role
+    Properties:
+      ManagedPolicyArns: 
+        - arn:aws:iam::aws:policy/service-role/AmazonSSMAutomationRole
+      AssumeRolePolicyDocument:
+        Version: 2012-10-17
+        Statement:
+        - Effect: Allow
+          Principal:
+            Service:
+            - ssm.amazonaws.com
+          Action:
+          - sts:AssumeRole
+      Path: "/"
+      Policies:
+      - PolicyName: ssm-automation-iam
+        PolicyDocument:
+          Version: 2012-10-17
+          Statement:
+            - Effect: Allow
+              Action:
+                - iam:CreatePolicy
+                - iam:GetRole
+                - iam:GetPolicy
+                - iam:DeleteRolePolicy
+                - iam:ListAttachedUserPolicies
+                - iam:AttachUserPolicy
+                - iam:CreateRole
+                - iam:PutRolePolicy
+                - iam:DetachUserPolicy
+                - iam:GetRolePolicy
+              Resource:
+                - arn:aws:iam::*:role/timed-*
+                - arn:aws:iam::*:policy/timed-*
+            - Effect: Allow
+              Action:
+                - iam:GetRole
+                - iam:PassRole
+                - iam:DeleteRole
+              Resource: arn:aws:iam::*:role/timed-*
+      - PolicyName: ssm-automation-lambda
+        PolicyDocument:
+          Version: 2012-10-17
+          Statement:
+            - Effect: Allow
+              Action:
+                - lambda:CreateFunction
+                - lambda:InvokeFunction
+                - lambda:GetFunction
+                - lambda:DeleteFunction
+              Resource: arn:aws:lambda:*:*:function:timed-*

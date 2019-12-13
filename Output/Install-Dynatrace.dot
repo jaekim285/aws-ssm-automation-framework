@@ -1,0 +1,13 @@
+// Installs Dynatrace using installer from the Binaries bucket.
+digraph {
+    Start [label=Start]
+    End [label=End]
+    Start -> assertInstanceIsWindows
+    assertInstanceIsWindows -> describeManagedInstance [label=onSuccess]
+    assertInstanceIsWindows -> End [label=onFailure color="red"]
+    describeManagedInstance -> branchOnManagedInstancePingStatus [label=onSuccess]
+    describeManagedInstance -> End [label=onFailure color="red"]
+    branchOnManagedInstancePingStatus -> installDynatrace [label="\"Variable\": \"{{ describeManagedInstance.PingStatus }}\"\l\"StringEquals\": \"Online\""]
+    branchOnManagedInstancePingStatus -> End [label=onFailure color="red"]
+    installDynatrace -> End [label=onSuccess]
+}

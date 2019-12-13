@@ -1,0 +1,95 @@
+AWSTemplateFormatVersion: 2010-09-09
+Parameters:
+  FunctionName:
+    Description: >
+      The lambda function name
+    Type: String
+  Duration:
+    Description: >
+      Duration (in hours) for elevated permissions
+    Type: String
+Resources:
+  LambdaFunction:
+    Type: AWS::Lambda::Function
+    Properties:
+      FunctionName: !Ref FunctionName
+      Code:
+        ZipFile: |
+          import datetime
+          import os
+
+
+          def generate_elevated_policy():
+              duration = int(os.environ['DURATION'])
+              iso_datetime_duration = "{}{}".format(
+                  (datetime.datetime.now() + datetime.timedelta(hours=duration)).replace(microsecond=0).isoformat(), "Z")
+
+              policy = {
+                  "Version": "2012-10-17",
+                  "Statement": [
+                      {
+                          "Effect": "Allow",
+                          "NotAction": [
+                              "iam:*",
+                              "organizations:*",
+                              "account:*"
+                          ],
+                          "Resource": "*",
+                          "Condition": {
+                              "DateLessThan": {"aws:CurrentTime": "{}".format(iso_datetime_duration)}
+                          }
+                      },
+                      {
+                          "Effect": "Allow",
+                          "Action": [
+                              "iam:CreateServiceLinkedRole",
+                              "iam:DeleteServiceLinkedRole",
+                              "iam:ListRoles",
+                              "organizations:DescribeOrganization",
+                              "account:ListRegions"
+                          ],
+                          "Resource": "*"
+                      }
+                  ]
+              }
+
+              return policy
+
+
+          def main(event, context):
+              return generate_elevated_policy()
+      Handler: "index.main"
+      Role:
+        Fn::GetAtt:
+        - LambdaRole
+        - Arn
+      Runtime: python3.7
+      Timeout: '900'
+      Environment:
+        Variables:
+          DURATION: !Ref Duration
+  LambdaRole:
+    Type: AWS::IAM::Role
+    Properties:
+      AssumeRolePolicyDocument:
+        Version: '2012-10-17'
+        Statement:
+        - Effect: Allow
+          Principal:
+            Service:
+            - lambda.amazonaws.com
+          Action:
+          - sts:AssumeRole
+      Path: "/"
+      Policies:
+      - PolicyName: timed-access-lambda-policy
+        PolicyDocument:
+          Version: '2012-10-17'
+          Statement:
+          - Effect: Allow
+            Action:
+            - iam:ListPolicies
+            - iam:ListRoles
+            - iam:ListUsers
+            - iam:ListGroups
+            Resource: '*'

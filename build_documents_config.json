@@ -1,0 +1,20 @@
+{
+    "documents": [
+        {
+            "documentName": "Install-Qualys",
+            "documentFolder": "Documents/Install/Install-Qualys"
+        },
+        {
+            "documentName": "Install-Dynatrace",
+            "documentFolder": "Documents/Install/Install-Dynatrace"
+        },
+        {
+            "documentName": "Get-FileFromS3",
+            "documentFolder": "Documents/Helpers/Get-FileFromS3"
+        },
+        {
+            "documentName": "Grant-ElevatedTimedAccess",
+            "documentFolder": "Documents/Helpers/Grant-ElevatedTimedAccess"
+        }
+    ]
+}

@@ -1,0 +1,9 @@
+{
+    "build": [
+        {
+            "stepName": "installDynatrace",
+            "file": "Scripts/Install-Dynatrace.ps1",
+            "type": "Command"
+        }
+    ]
+}

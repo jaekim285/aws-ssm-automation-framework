@@ -1,0 +1,14 @@
+{
+    "build": [
+        {
+            "stepName": "deployElevatedTimedAccessLambda",
+            "file": "Template/Grant-ElevatedTimedAccess.yml",
+            "type": "CloudFormation"
+        },
+        {
+            "stepName": "deployElevatedPolicyGeneratorLambda",
+            "file": "Template/Generate-ElevatedPolicy.yml",
+            "type": "CloudFormation"
+        }
+    ]
+}
